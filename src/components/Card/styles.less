@@ -1,0 +1,38 @@
+@import '../../styles/variables.less';
+
+.card {
+  border-radius: @radius-lg;
+
+  &--default {
+    background-color: white;
+    border: 1px solid @gray-200;
+  }
+
+  &--outlined {
+    background-color: transparent;
+    border: 2px solid @gray-300;
+  }
+
+  &--elevated {
+    background-color: white;
+    border: none;
+    box-shadow: @shadow-lg;
+  }
+
+  &--padding-none {
+    padding: 0;
+  }
+
+  &--padding-sm {
+    padding: 0.75rem;
+  }
+
+  &--padding-md {
+    padding: 1rem;
+  }
+
+  &--padding-lg {
+    padding: 1.5rem;
+  }
+}
+

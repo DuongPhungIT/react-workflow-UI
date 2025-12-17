@@ -1,0 +1,92 @@
+@import '../../styles/variables.less';
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  &--full-width {
+    width: 100%;
+  }
+}
+
+.input-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: @gray-700;
+  margin-bottom: 0.25rem;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  border-radius: @radius-lg;
+  border: 1px solid @gray-300;
+  box-shadow: @shadow-sm;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all @transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: @primary-500;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+  }
+
+  &:disabled {
+    background-color: @gray-50;
+    color: @gray-500;
+    cursor: not-allowed;
+  }
+
+  &--error {
+    border-color: @red-300;
+
+    &:focus {
+      border-color: @red-500;
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+    }
+  }
+
+  &--with-left-icon {
+    padding-left: 2.5rem;
+  }
+
+  &--with-right-icon {
+    padding-right: 2.5rem;
+  }
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: @gray-400;
+
+  &--left {
+    left: 0.75rem;
+  }
+
+  &--right {
+    right: 0.75rem;
+  }
+}
+
+.input-error {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: @red-600;
+}
+
+.input-helper {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: @gray-500;
+}
+

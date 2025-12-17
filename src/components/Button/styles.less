@@ -1,0 +1,120 @@
+@import '../../styles/variables.less';
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-radius: @radius-lg;
+  transition: all @transition-base;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.5);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  // Variants
+  &--primary {
+    background-color: @primary-600;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: @primary-700;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.5);
+    }
+  }
+
+  &--secondary {
+    background-color: @gray-200;
+    color: @gray-900;
+
+    &:hover:not(:disabled) {
+      background-color: @gray-300;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.5);
+    }
+  }
+
+  &--outline {
+    background-color: transparent;
+    border: 2px solid @primary-600;
+    color: @primary-600;
+
+    &:hover:not(:disabled) {
+      background-color: @primary-50;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.5);
+    }
+  }
+
+  &--ghost {
+    background-color: transparent;
+    color: @gray-700;
+
+    &:hover:not(:disabled) {
+      background-color: @gray-100;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.5);
+    }
+  }
+
+  &--danger {
+    background-color: @red-600;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: @red-700;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.5);
+    }
+  }
+
+  // Sizes
+  &--sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  &--md {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+  }
+
+  &--lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.125rem;
+  }
+
+  // Full width
+  &--full-width {
+    width: 100%;
+  }
+
+  // Loading spinner
+  .button__spinner {
+    margin-right: @spacing-sm;
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
