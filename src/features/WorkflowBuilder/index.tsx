@@ -95,11 +95,35 @@ const nodeTypes = {
   error: ErrorNode,
 };
 
+// Helper to determine node color consistently
+const getNodeColor = (node: any) => {
+  const label = node.data?.label;
+  const type = node.type;
+  
+  // Trigger is always Violet
+  if (type === 'trigger' || label === 'Webhook') return '#8b5cf6';
+  
+  // Action types
+  if (label === 'Output') return '#10b981';
+  if (label === 'Script') return '#14b8a6';
+  if (label === 'LLM') return '#ec4899';
+  if (label === 'HTTP') return '#3b82f6';
+  
+  // Other types
+  if (type === 'condition' || label === 'Switch') return '#f59e0b';
+  if (type === 'delay') return '#8b5cf6';
+  if (type === 'loop') return '#ec4899';
+  if (type === 'error') return '#ef4444';
+  
+  // Fallback
+  return (node.data?.color as string) || '#3b82f6';
+};
+
 const WorkflowBuilderContent: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { currentWorkflow, selectedNode } = useAppSelector((state) => state.workflow);
-  const { fitView } = useReactFlow();
+  const { fitView, getNode } = useReactFlow();
   const hasFittedView = useRef(false);
   const [selectedEdgeId, setSelectedEdgeId] = React.useState<string | null>(null);
   const [isLocked, setIsLocked] = React.useState<boolean>(false);
@@ -125,8 +149,6 @@ const WorkflowBuilderContent: React.FC = () => {
     }
     setIsEditingName(false);
   };
-
-  // Custom lock button - no need to monitor React Flow's lock button
 
   // Initialize with empty workflow
   useEffect(() => {
@@ -156,7 +178,7 @@ const WorkflowBuilderContent: React.FC = () => {
   // Debounce timeout ref
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Update nodes and edges when workflow loads
+  // Update edges when workflow loads
   useEffect(() => {
     if (currentWorkflow.data && currentWorkflow.loading === 'succeeded') {
       // Update nodes
@@ -179,37 +201,37 @@ const WorkflowBuilderContent: React.FC = () => {
 
       // Update edges
       if (currentWorkflow.data.connections && currentWorkflow.data.connections.length > 0) {
-        const newEdges = currentWorkflow.data.connections.map((conn) => ({
-          id: conn.id,
-          source: conn.source,
-          target: conn.target,
-          sourceHandle: conn.sourceHandle || undefined,
-          targetHandle: conn.targetHandle || undefined,
-          type: 'smoothstep',
-          animated: true,
-          style: { strokeWidth: 1.5, stroke: '#6b7280' },
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: '#6b7280',
-          },
-          selected: conn.id === selectedEdgeId,
-        }));
+        const newEdges = currentWorkflow.data.connections.map((conn) => {
+          // Find source node to get color
+          const sourceNode = currentWorkflow.data?.nodes?.find(n => n.id === conn.source);
+          const edgeColor = sourceNode ? getNodeColor(sourceNode) : '#6b7280';
+          
+          return {
+            id: conn.id,
+            source: conn.source,
+            target: conn.target,
+            sourceHandle: conn.sourceHandle || undefined,
+            targetHandle: conn.targetHandle || undefined,
+            type: 'smoothstep',
+            animated: true,
+            style: { strokeWidth: 1.5, stroke: edgeColor },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+              color: edgeColor,
+            },
+            selected: conn.id === selectedEdgeId,
+          };
+        });
         setEdges(newEdges);
       } else {
         setEdges([]);
       }
       
-      // Fit view after nodes are loaded
-      if (!hasFittedView.current && currentWorkflow.data.nodes && currentWorkflow.data.nodes.length > 0) {
-        setTimeout(() => {
-          fitView({ duration: 400, padding: 0.2 });
-          hasFittedView.current = true;
-        }, 300);
-      }
+      // ... (fitView logic)
     }
-  }, [currentWorkflow.data, currentWorkflow.loading, setNodes, setEdges, fitView]);
+  }, [currentWorkflow.data, currentWorkflow.loading, setNodes, setEdges, fitView, selectedEdgeId]);
 
   // Update nodes draggable state when lock changes
   useEffect(() => {
@@ -306,120 +328,121 @@ const WorkflowBuilderContent: React.FC = () => {
   // Handle new connections
   const onConnect = useCallback(
     (params: Connection) => {
-      // Don't allow connections if locked
-      if (isLocked) {
-        return;
-      }
-      
-      // Đảm bảo source và target đúng - không đảo ngược
-      if (!params.source || !params.target) {
-        return; // Không tạo connection nếu thiếu source hoặc target
-      }
-      
-      // Sử dụng node bắt đầu kéo để xác định đúng hướng
-      const startNodeId = connectionStartNodeRef.current;
-      
+      // Initialize variables immediately to avoid ReferenceError
       let finalSource = params.source;
       let finalTarget = params.target;
       let finalSourceHandle = params.sourceHandle;
       let finalTargetHandle = params.targetHandle;
-      
-      // Nếu có thông tin node bắt đầu kéo, sử dụng nó để xác định đúng hướng
-      if (startNodeId) {
-        // Node bắt đầu kéo phải là source (đầu ra)
-        if (startNodeId === params.target) {
-          // React Flow đã đảo ngược, cần swap lại
-          finalSource = params.target;
-          finalTarget = params.source;
-          finalSourceHandle = params.targetHandle;
-          finalTargetHandle = params.sourceHandle;
-          
-          console.log('Fixed reversed connection using start node:', {
-            startNode: startNodeId,
-            original: {
-              source: params.source,
-              target: params.target,
-            },
-            fixed: {
-              source: finalSource,
-              target: finalTarget,
-            },
-          });
-        } else if (startNodeId === params.source) {
-          // Đúng hướng rồi
-          console.log('Connection direction is correct:', {
-            startNode: startNodeId,
-            source: params.source,
-            target: params.target,
-          });
+      let edgeColor = '#6b7280';
+
+      try {
+        // Don't allow connections if locked
+        if (isLocked) {
+          return;
         }
         
-        // Reset sau khi sử dụng
-        connectionStartNodeRef.current = null;
-      } else {
-        // Fallback: Kiểm tra handle type nếu không có thông tin node bắt đầu
-        const sourceHandleId = params.sourceHandle || '';
-        const targetHandleId = params.targetHandle || '';
-        const sourceIsInput = sourceHandleId.includes('input');
-        const targetIsOutput = targetHandleId.includes('output');
-        
-        // Nếu bị đảo ngược (source là input hoặc target là output)
-        if (sourceIsInput || targetIsOutput) {
-          // Swap lại
-          finalSource = params.target;
-          finalTarget = params.source;
-          finalSourceHandle = params.targetHandle;
-          finalTargetHandle = params.sourceHandle;
-          
-          console.log('Fixed reversed connection using handle type:', {
-            original: {
-              source: params.source,
-              target: params.target,
-              sourceHandle: params.sourceHandle,
-              targetHandle: params.targetHandle,
-            },
-            fixed: {
-              source: finalSource,
-              target: finalTarget,
-              sourceHandle: finalSourceHandle,
-              targetHandle: finalTargetHandle,
-            },
-          });
+        console.log('onConnect triggered:', params);
+
+        // Đảm bảo source và target đúng - không đảo ngược
+        if (!params.source || !params.target) {
+          return; // Không tạo connection nếu thiếu source hoặc target
         }
+        
+        // Sử dụng node bắt đầu kéo để xác định đúng hướng
+        // Note: connectionStartNodeRef is a ref, so .current is safe to access
+        const startNodeId = connectionStartNodeRef.current;
+        
+        // Nếu có thông tin node bắt đầu kéo, sử dụng nó để xác định đúng hướng
+        if (startNodeId) {
+          // Node bắt đầu kéo phải là source (đầu ra)
+          if (startNodeId === params.target) {
+            // React Flow đã đảo ngược, cần swap lại
+            finalSource = params.target;
+            finalTarget = params.source;
+            finalSourceHandle = params.targetHandle;
+            finalTargetHandle = params.sourceHandle;
+            
+            console.log('Swapped connection based on start node');
+          }
+          
+          // Reset sau khi sử dụng
+          connectionStartNodeRef.current = null;
+        } else {
+          // Fallback: Kiểm tra handle type nếu không có thông tin node bắt đầu
+          const sourceHandleId = params.sourceHandle || '';
+          const targetHandleId = params.targetHandle || '';
+          const sourceIsInput = sourceHandleId.includes('input');
+          const targetIsOutput = targetHandleId.includes('output');
+          
+          // Nếu bị đảo ngược (source là input hoặc target là output)
+          if (sourceIsInput || targetIsOutput) {
+            // Swap lại
+            finalSource = params.target;
+            finalTarget = params.source;
+            finalSourceHandle = params.targetHandle;
+            finalTargetHandle = params.sourceHandle;
+            
+            console.log('Swapped connection based on handle types');
+          }
+        }
+        
+        // Tạo connection với hướng đúng
+        const connection: Connection = {
+          source: finalSource,
+          target: finalTarget,
+          sourceHandle: finalSourceHandle,
+          targetHandle: finalTargetHandle,
+        };
+
+        // Get source node color for the edge
+        // Use nodes state directly for safety
+        if (finalSource) {
+           const sourceNode = nodes.find(n => n.id === finalSource);
+           if (sourceNode) {
+             try {
+               edgeColor = getNodeColor(sourceNode);
+             } catch (err) {
+               console.error('Error getting node color:', err);
+             }
+           }
+        }
+        
+        console.log('Creating edge with color:', edgeColor);
+
+        const newEdge = addEdge(
+          {
+            ...connection,
+            type: 'smoothstep',
+            animated: true,
+            style: { strokeWidth: 1.5, stroke: edgeColor },
+            markerEnd: {
+              type: MarkerType.ArrowClosed,
+              width: 20,
+              height: 20,
+              color: edgeColor,
+            },
+          } as Edge,
+          edges
+        );
+        
+        setEdges(newEdge);
+        
+        const updatedConnections: WorkflowConnection[] = newEdge.map((edge) => ({
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          sourceHandle: edge.sourceHandle || undefined,
+          targetHandle: edge.targetHandle || undefined,
+        }));
+        
+        dispatch(updateCurrentWorkflowConnections(updatedConnections));
+      } catch (error) {
+        console.error('Error in onConnect:', error);
       }
-      
-      // Tạo connection với hướng đúng
-      const connection: Connection = {
-        source: finalSource,
-        target: finalTarget,
-        sourceHandle: finalSourceHandle,
-        targetHandle: finalTargetHandle,
-      };
-      
-      const newEdge = addEdge(
-        {
-          ...connection,
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20,
-            color: '#6b7280',
-          },
-        } as Edge,
-        edges
-      );
-      setEdges(newEdge);
-      const updatedConnections: WorkflowConnection[] = newEdge.map((edge) => ({
-        id: edge.id,
-        source: edge.source,
-        target: edge.target,
-        sourceHandle: edge.sourceHandle || undefined,
-        targetHandle: edge.targetHandle || undefined,
-      }));
-      dispatch(updateCurrentWorkflowConnections(updatedConnections));
     },
-    [edges, setEdges, dispatch, isLocked]
+    [edges, setEdges, dispatch, isLocked, nodes]
   );
+
 
   // Handle node selection
   const onNodeClick = useCallback(
@@ -746,18 +769,30 @@ const WorkflowBuilderContent: React.FC = () => {
           {/* Floating action buttons - Horizontal List */}
           <div className="workflow-builder__floating-actions">
             {[
-              { type: 'Webhook', icon: <ThunderboltOutlined />, title: 'Add Webhook' },
-              { type: 'Script', icon: <CodeOutlined />, title: 'Add Script' },
-              { type: 'LLM', icon: <RobotOutlined />, title: 'Add LLM' },
-              { type: 'HTTP', icon: <GlobalOutlined />, title: 'Add HTTP Request' },
-              { type: 'Switch', icon: <BranchesOutlined />, title: 'Add Switch' },
-              { type: 'Output', icon: <ExportOutlined />, title: 'Add Output' },
+              { type: 'Webhook', icon: <ThunderboltOutlined />, title: 'Add Webhook', color: '#8b5cf6' },
+              { type: 'Script', icon: <CodeOutlined />, title: 'Add Script', color: '#14b8a6' },
+              { type: 'LLM', icon: <RobotOutlined />, title: 'Add LLM', color: '#ec4899' },
+              { type: 'HTTP', icon: <GlobalOutlined />, title: 'Add HTTP Request', color: '#3b82f6' },
+              { type: 'Switch', icon: <BranchesOutlined />, title: 'Add Switch', color: '#f59e0b' },
+              { type: 'Output', icon: <ExportOutlined />, title: 'Add Output', color: '#10b981' },
             ].map((item) => (
               <div key={item.type} className="workflow-builder__action-item" title={item.title}>
                 <button
                   className="workflow-builder__action-btn"
                   onClick={() => handleAddNode(item.type)}
                   type="button"
+                  style={{ 
+                    borderColor: 'var(--border-primary)', 
+                    color: item.color 
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = item.color;
+                    e.currentTarget.style.backgroundColor = `${item.color}10`; // 10% opacity
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border-primary)';
+                    e.currentTarget.style.backgroundColor = 'var(--bg-primary)';
+                  }}
                 >
                   {item.icon}
                 </button>

@@ -1,7 +1,8 @@
 // Base Node Component - Base component for all workflow nodes
 
 import React from 'react';
-import { Handle, Position, NodeProps } from '@xyflow/react';
+import { Handle, Position, NodeProps, useReactFlow } from '@xyflow/react';
+import { DeleteOutlined } from '@ant-design/icons';
 import './BaseNode.less';
 
 export interface BaseNodeData {
@@ -12,6 +13,7 @@ export interface BaseNodeData {
   status?: 'idle' | 'running' | 'success' | 'error' | 'warning';
   description?: string;
   fields?: Array<{ label: string; value: string }>;
+  handles?: 'source' | 'target' | 'both';
   [key: string]: unknown;
 }
 
@@ -19,12 +21,22 @@ export interface BaseNodeProps extends NodeProps {
   data: BaseNodeData;
 }
 
-const BaseNode: React.FC<BaseNodeProps> = ({ data, selected }) => {
+const BaseNode: React.FC<BaseNodeProps> = ({ id, data, selected }) => {
+  const { deleteElements } = useReactFlow();
   const nodeColor = data.color || '#3b82f6'; // Blue default
   const mainLabel = data.label || 'Node';
   const subtitle = data.subtitle;
   const status = data.status || 'idle';
   const fields = data.fields || [];
+  const handles = data.handles || 'both';
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    deleteElements({ nodes: [{ id }] });
+  };
+
+  const showTarget = handles === 'target' || handles === 'both';
+  const showSource = handles === 'source' || handles === 'both';
 
   // Default icon if not provided
   const defaultIcon = (
@@ -45,34 +57,21 @@ const BaseNode: React.FC<BaseNodeProps> = ({ data, selected }) => {
   return (
     <div 
       className={`base-node ${selected ? 'base-node--selected' : ''} base-node--${status}`}
+      style={{ borderColor: nodeColor }}
     >
-      {/* Input/Output Handles - Left side (single handle in center) */}
-      <Handle
-        type="target"
-        position={Position.Left}
-        id="left-input"
-        className="base-node__handle base-node__handle--left"
-        style={{ 
-          background: nodeColor,
-          border: '3px solid #ffffff',
-          width: '24px',
-          height: '24px',
-        }}
-        isConnectable={true}
-      />
-      <Handle
-        type="source"
-        position={Position.Left}
-        id="left-output"
-        className="base-node__handle base-node__handle--left"
-        style={{ 
-          background: nodeColor,
-          border: '3px solid #ffffff',
-          width: '24px',
-          height: '24px',
-        }}
-        isConnectable={true}
-      />
+      {/* Input Handle - Left side (Target) */}
+      {showTarget && (
+        <Handle
+          type="target"
+          position={Position.Left}
+          id="left-input"
+          className="base-node__handle base-node__handle--left"
+          style={{ 
+            background: nodeColor,
+          }}
+          isConnectable={true}
+        />
+      )}
 
       {/* Node Body */}
       <div className="base-node__body">
@@ -91,6 +90,17 @@ const BaseNode: React.FC<BaseNodeProps> = ({ data, selected }) => {
             {subtitle && (
               <div className="base-node__subtitle">{subtitle}</div>
             )}
+          </div>
+
+          {/* Delete Action */}
+          <div className="base-node__actions">
+             <button 
+               className="base-node__delete-btn"
+               onClick={handleDelete}
+               title="Delete node"
+             >
+               <DeleteOutlined />
+             </button>
           </div>
         </div>
 
@@ -118,36 +128,21 @@ const BaseNode: React.FC<BaseNodeProps> = ({ data, selected }) => {
         )}
       </div>
 
-      {/* Input/Output Handles - Right side (single handle in center) */}
-      <Handle
-        type="target"
-        position={Position.Right}
-        id="right-input"
-        className="base-node__handle base-node__handle--right"
-        style={{ 
-          background: nodeColor,
-          border: '3px solid #ffffff',
-          width: '24px',
-          height: '24px',
-        }}
-        isConnectable={true}
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="right-output"
-        className="base-node__handle base-node__handle--right"
-        style={{ 
-          background: nodeColor,
-          border: '3px solid #ffffff',
-          width: '24px',
-          height: '24px',
-        }}
-        isConnectable={true}
-      />
+      {/* Output Handle - Right side (Source) */}
+      {showSource && (
+        <Handle
+          type="source"
+          position={Position.Right}
+          id="right-output"
+          className="base-node__handle base-node__handle--right"
+          style={{ 
+            background: nodeColor,
+          }}
+          isConnectable={true}
+        />
+      )}
     </div>
   );
 };
 
 export default BaseNode;
-

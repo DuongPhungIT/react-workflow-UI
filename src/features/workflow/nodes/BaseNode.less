@@ -15,7 +15,6 @@
   cursor: grab;
   animation: nodeAppear 0.3s ease-out;
   position: relative;
-  overflow: hidden;
   pointer-events: auto;
   user-select: none;
 
@@ -181,23 +180,52 @@
     margin-top: 0.25rem;
   }
 
+  &__actions {
+    margin-left: auto;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  &__delete-btn {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: #fee2e2;
+      color: #ef4444;
+    }
+  }
+
+  &:hover &__delete-btn {
+    opacity: 1;
+  }
+
   // Handles - Circular blue dots
   &__handle {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    border: none;
+    border: 2px solid #ffffff;
     background-color: #3b82f6;
     transition: all 0.2s ease;
     z-index: 10;
-    box-shadow: 0 0 0 1px #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
     &--left {
-      left: -2px;
+      left: -6px;
     }
 
     &--right {
-      right: -2px;
+      right: -6px;
     }
   }
 }

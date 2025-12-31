@@ -1,7 +1,7 @@
 // Trigger Node Component - Starting point of workflow
 
 import React from 'react';
-import { NodeProps } from '@xyflow/react';
+import { NodeProps, Node } from '@xyflow/react';
 import BaseNode, { BaseNodeData } from './BaseNode';
 
 export interface TriggerNodeData extends BaseNodeData {
@@ -10,8 +10,8 @@ export interface TriggerNodeData extends BaseNodeData {
   method?: string;
 }
 
-const TriggerNode: React.FC<NodeProps<TriggerNodeData>> = (props) => {
-  const { data } = props;
+const TriggerNode: React.FC<NodeProps<Node<TriggerNodeData>>> = (props) => {
+  const data = props.data as TriggerNodeData;
   const triggerType = data.triggerType || 'manual';
   const path = data.path;
   const method = data.method;
@@ -54,9 +54,10 @@ const TriggerNode: React.FC<NodeProps<TriggerNodeData>> = (props) => {
     ...data,
     label: data.label || 'Start',
     subtitle: data.subtitle || triggerLabels[triggerType] || 'Trigger',
-    color: data.color || '#3b82f6', // Blue for triggers
+    color: '#8b5cf6', // Violet for triggers
     icon: data.icon || triggerIcon,
     fields: fields.length > 0 ? fields : data.fields,
+    handles: 'source',
   };
 
   return <BaseNode {...props} data={nodeData} />;
