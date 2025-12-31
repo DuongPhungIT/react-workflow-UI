@@ -1,0 +1,699 @@
+@import '../../styles/variables.less';
+
+.workflow-builder {
+  height: calc(100vh - 8rem);
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-tertiary);
+  animation: fadeIn 0.3s ease-in;
+
+  &__header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-primary);
+    background-color: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: @shadow-sm;
+    transition: all @transition-base;
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .workflow-builder__title-input {
+      font-size: 1.5rem !important;
+      font-weight: 700 !important;
+      color: var(--text-primary) !important;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 2px solid @primary-500 !important;
+      outline: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100%;
+      min-width: 300px;
+      font-family: inherit !important;
+      line-height: inherit !important;
+      height: auto !important;
+
+      &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border-bottom: 2px solid @primary-500 !important;
+        background: transparent !important;
+      }
+    }
+
+    .workflow-builder__description {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  &__description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  &__body {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+  }
+
+  &__canvas {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    animation: fadeIn 0.4s ease-in;
+    min-width: 0; // Allow flex item to shrink
+    transition: width @transition-base;
+  }
+
+  // Adjust canvas when sidebar is open
+  &__body:has(.node-config-sidebar) &__canvas {
+    width: calc(100% - 24rem);
+    flex: 0 0 calc(100% - 24rem);
+  }
+
+  &__panel {
+    background-color: var(--bg-primary);
+    padding: 0.5rem 1rem;
+    border-radius: @radius-md;
+    box-shadow: @shadow-md;
+    border: 1px solid var(--border-primary);
+  }
+
+  // Custom controls panel
+  &__custom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__lock-btn {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1.5px solid var(--border-primary);
+    background-color: var(--bg-primary);
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    // Ripple effect
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    &:hover {
+      background-color: #eff6ff;
+      border-color: #3b82f6;
+      color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+
+      &::before {
+        width: 100px;
+        height: 100px;
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    // Locked state - red background
+    &--locked {
+      background-color: #fef2f2;
+      border-color: #ef4444;
+      color: #ef4444;
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+
+      &:hover {
+        background-color: #fee2e2;
+        border-color: #dc2626;
+        color: #dc2626;
+        box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3);
+      }
+
+      &::before {
+        background: rgba(239, 68, 68, 0.1);
+      }
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover svg {
+      transform: scale(1.1);
+    }
+  }
+
+  &__info {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+
+  // Floating action buttons at the bottom center of canvas
+  &__floating-actions {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%; // Center horizontally
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex; // Horizontal row
+    gap: 0.75rem;
+    animation: slideUp 0.3s ease-out;
+  }
+
+  &__action-item {
+    position: relative;
+    
+    // Tooltip
+    &::after {
+      content: attr(title);
+      position: absolute;
+      bottom: calc(100% + 12px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-4px);
+      padding: 0.5rem 0.875rem;
+      background-color: var(--text-primary);
+      color: var(--bg-primary);
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      letter-spacing: 0.01em;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-4px);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid var(--text-primary);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1001;
+    }
+
+    &:hover {
+      &::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      
+      &::before {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+  }
+
+  &__action-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1.5px solid var(--border-primary);
+    background-color: var(--bg-primary);
+    color: @primary-500;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+    // Ripple effect background
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    &:hover {
+      background-color: #eff6ff;
+      border-color: #3b82f6;
+      color: #2563eb;
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25), 0 4px 8px rgba(59, 130, 246, 0.15);
+      
+      &::before {
+        width: 100px;
+        height: 100px;
+      }
+    }
+
+    &:active {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+    }
+
+    svg, span {
+      width: 22px;
+      height: 22px;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover svg, &:hover span {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Custom Node Styles (n8n style)
+.workflow-node {
+  background-color: #374151;
+  border: 2px solid #4b5563;
+  border-radius: 8px;
+  padding: 0;
+  min-width: 180px;
+  max-width: 220px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  // Only transition non-transform properties for better drag performance
+  transition: box-shadow @transition-base, border-color @transition-base;
+  cursor: grab;
+  animation: nodeAppear 0.3s ease-out;
+  position: relative;
+  overflow: visible;
+  // Ensure node is draggable
+  pointer-events: auto;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    // Disable transform on hover to avoid conflicts with dragging
+  }
+
+  &--n8n {
+    background-color: #374151; // Keep n8n style dark
+    border: 2px solid #4b5563;
+  }
+
+  &__body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.25rem;
+  }
+
+  &__icon-svg {
+    width: 32px;
+    height: 32px;
+    color: #a78bfa;
+    stroke-width: 2;
+  }
+
+  &__label {
+    font-weight: 500;
+    color: #ffffff;
+    font-size: 0.875rem;
+    line-height: 1.3;
+    word-break: break-word;
+    margin: 0;
+  }
+
+  &__subtitle {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: 400;
+    text-transform: lowercase;
+    margin-top: -0.25rem;
+  }
+
+  &__handle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-primary);
+    background-color: var(--bg-primary);
+    color: var(--text-tertiary);
+    transition: all @transition-base;
+    z-index: 10;
+
+    &:hover {
+      background-color: #d1d5db;
+      border-color: #6b7280;
+      transform: scale(1.2);
+    }
+
+    // Ensure handles are always visible
+    &.react-flow__handle {
+      opacity: 1 !important;
+      visibility: visible !important;
+      z-index: 100 !important;
+      display: block !important;
+    }
+
+    // Handle bên trái - có thể vừa là input vừa là output
+    &--left {
+      left: -6px;
+      
+      // Đặt cả target và source ở cùng vị trí
+      &.react-flow__handle-target {
+        left: -6px;
+      }
+      
+      &.react-flow__handle-source {
+        left: -6px;
+      }
+    }
+
+    // Handle bên phải - có thể vừa là input vừa là output
+    &--right {
+      right: -6px;
+      
+      // Đặt cả target và source ở cùng vị trí
+      &.react-flow__handle-target {
+        right: -6px;
+      }
+      
+      &.react-flow__handle-source {
+        right: -6px;
+      }
+    }
+  }
+
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes menuSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Custom React Flow Controls styling
+.react-flow__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--bg-primary);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-primary);
+  backdrop-filter: blur(10px);
+
+  button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-primary);
+    border: 1.5px solid var(--border-primary);
+    border-radius: 8px;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    // Ripple effect
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      transform: translate(-50%, -50%);
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+    &:hover {
+      background-color: #eff6ff;
+      border-color: #3b82f6;
+      color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+
+      &::before {
+        width: 100px;
+        height: 100px;
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+    }
+
+    // Active/selected state
+    &.react-flow__controls-button-active {
+      background-color: var(--bg-sidebar-active);
+      border-color: @primary-500;
+      color: @primary-500;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    // Hide default lock button (we have custom one)
+    &[aria-label*="lock"],
+    &[aria-label*="Lock"],
+    &[aria-label*="LOCK"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+      position: relative;
+      z-index: 1;
+      transition: transform 0.2s ease;
+    }
+
+    &:hover svg {
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Custom React Flow MiniMap styling
+.react-flow__minimap {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+
+  .react-flow__minimap-mask {
+    fill: rgba(59, 130, 246, 0.1);
+    stroke: #3b82f6;
+    stroke-width: 2;
+  }
+
+  .react-flow__minimap-node {
+    fill: #e5e7eb;
+    stroke: #9ca3af;
+    stroke-width: 1;
+    rx: 4;
+    transition: all 0.2s ease;
+
+    &:hover {
+      fill: #d1d5db;
+      stroke: #6b7280;
+    }
+  }
+}
+
+// Custom React Flow Background styling
+.react-flow__background {
+  .react-flow__background-pattern {
+    stroke: #e5e7eb;
+    stroke-width: 0.5;
+  }
+}
+
+@keyframes nodeAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// React Flow overrides
+.react-flow {
+  &__node {
+    transition: all @transition-base;
+    
+    &.selected {
+      .workflow-node {
+        // Double border effect like n8n
+        border: 2px solid #6366f1;
+        box-shadow: 0 0 0 2px #374151, 0 0 0 4px #6366f1, 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    &.dragging {
+      .workflow-node {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+        transform: scale(1.05);
+        transition: none !important;
+      }
+    }
+  }
+
+  &__handle {
+    // Override default handle styles - we use custom handles in node
+    // Positions are handled in workflow-node__handle classes
+  }
+
+  &__edge {
+    cursor: pointer;
+    
+    &-path {
+      stroke: #6b7280;
+      stroke-width: 1.5;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); // Smooth transition
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+      // Làm mượt đường kết nối
+      vector-effect: non-scaling-stroke;
+      stroke-linecap: round; // Đầu mút tròn
+      stroke-linejoin: round; // Góc nối tròn
+    }
+
+    &:hover {
+      .react-flow__edge-path {
+        stroke: #9ca3af;
+        stroke-width: 2;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+      }
+    }
+
+    &.selected {
+      .react-flow__edge-path {
+        stroke: #ef4444;
+        stroke-width: 2;
+        filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.4));
+      }
+    }
+
+    &-button {
+      fill: #ef4444;
+      stroke: white;
+      stroke-width: 1.5;
+      cursor: pointer;
+      
+      &:hover {
+        fill: #dc2626;
+      }
+    }
+  }
+
+}
+

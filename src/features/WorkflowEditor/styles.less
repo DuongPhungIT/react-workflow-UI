@@ -5,13 +5,13 @@
   min-height: 600px;
   display: flex;
   flex-direction: column;
-  background-color: @gray-50;
+  background-color: var(--bg-tertiary);
   animation: fadeIn 0.3s ease-in;
 
   &__header {
     padding: 1rem 1.5rem;
-    border-bottom: 1px solid @gray-200;
-    background-color: white;
+    border-bottom: 1px solid var(--border-primary);
+    background-color: var(--bg-primary);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -21,17 +21,42 @@
     h2 {
       font-size: 1.25rem;
       font-weight: 600;
-      color: @gray-900;
+      color: var(--text-primary);
       margin: 0 0 0.25rem 0;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
+
+    .workflow-editor__title-input {
+      font-size: 1.25rem !important;
+      font-weight: 600 !important;
+      color: var(--text-primary) !important;
+      background: transparent !important;
+      border: none !important;
+      border-bottom: 2px solid @primary-500 !important;
+      outline: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100%;
+      min-width: 200px;
+      font-family: inherit !important;
+      line-height: inherit !important;
+      height: auto !important;
+
+      &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        border-bottom: 2px solid @primary-500 !important;
+        background: transparent !important;
+      }
+    }
   }
 
   &__description {
     font-size: 0.875rem;
-    color: @gray-600;
+    color: var(--text-secondary);
     margin: 0;
   }
 
@@ -44,7 +69,7 @@
     flex: 1;
     position: relative;
     overflow: hidden;
-    background-color: @gray-100;
+    background-color: var(--bg-secondary);
     animation: fadeIn 0.4s ease-in;
   }
 
@@ -61,31 +86,32 @@
   }
 
   &__panel {
-    background-color: white;
+    background-color: var(--bg-primary);
     padding: 0.5rem 1rem;
     border-radius: @radius-md;
     box-shadow: @shadow-md;
-    border: 1px solid @gray-200;
+    border: 1px solid var(--border-primary);
   }
 
   &__info {
     display: flex;
     gap: 1rem;
     font-size: 0.875rem;
-    color: @gray-600;
+    color: var(--text-secondary);
   }
 }
 
 // Custom Node Styles
 .workflow-node {
-  background-color: white;
-  border: 2px solid @gray-200;
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-primary);
   border-radius: @radius-lg;
   padding: 0.875rem 1rem;
   min-width: 160px;
   max-width: 200px;
   box-shadow: @shadow-sm;
-  transition: all @transition-base;
+  // Only transition non-transform properties for better drag performance
+  transition: box-shadow @transition-base, border-color @transition-base;
   cursor: grab;
   animation: nodeAppear 0.3s ease-out;
 
@@ -96,7 +122,7 @@
   &:hover {
     box-shadow: @shadow-md;
     border-color: @primary-300;
-    transform: translateY(-2px);
+    // Disable transform on hover to avoid conflicts with dragging
   }
 
   &__header {
@@ -137,7 +163,7 @@
 
   &__label {
     font-weight: 500;
-    color: @gray-900;
+    color: var(--text-primary);
     font-size: 0.875rem;
     line-height: 1.4;
     word-break: break-word;
@@ -242,9 +268,9 @@
 
   &__controls {
     button {
-      background-color: white;
-      border: 1px solid @gray-200;
-      color: @gray-700;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-primary);
+      color: var(--text-tertiary);
       box-shadow: @shadow-sm;
       transition: all @transition-base;
 
@@ -262,8 +288,8 @@
   }
 
   &__minimap {
-    background-color: @gray-100;
-    border: 1px solid @gray-200;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
     border-radius: @radius-md;
     box-shadow: @shadow-md;
     overflow: hidden;

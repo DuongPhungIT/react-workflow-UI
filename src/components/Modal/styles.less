@@ -27,7 +27,7 @@
   }
 
   &__content {
-    background-color: white;
+    background-color: var(--bg-modal);
     border-radius: @radius-lg;
     box-shadow: @shadow-xl;
     width: 100%;
@@ -65,17 +65,17 @@
     align-items: center;
     justify-content: space-between;
     padding: 1rem;
-    border-bottom: 1px solid @gray-200;
+    border-bottom: 1px solid var(--border-primary);
   }
 
   &__title {
     font-size: 1.125rem;
     font-weight: 600;
-    color: @gray-900;
+    color: var(--text-primary);
   }
 
   &__close {
-    color: @gray-400;
+    color: var(--text-tertiary);
     background: none;
     border: none;
     cursor: pointer;
@@ -83,7 +83,7 @@
     transition: color @transition-base;
 
     &:hover {
-      color: @gray-600;
+      color: var(--text-secondary);
     }
 
     svg {
@@ -100,10 +100,11 @@
 
   &__footer {
     padding: 1rem;
-    border-top: 1px solid @gray-200;
+    border-top: 1px solid var(--border-primary);
     display: flex;
     justify-content: flex-end;
     gap: 0.5rem;
   }
 }
+
 

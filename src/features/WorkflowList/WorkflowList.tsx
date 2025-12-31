@@ -45,8 +45,16 @@ const WorkflowList: React.FC = () => {
   return (
     <div className="workflow-list">
       <div className="workflow-list__header">
-        <h1>Workflows</h1>
-        <p>Manage your automation workflows</p>
+        <div>
+          <h1>Workflows</h1>
+          <p>Manage your automation workflows</p>
+        </div>
+        <Button
+          variant="primary"
+          onClick={() => navigate('/builder')}
+        >
+          Create New Workflow
+        </Button>
       </div>
 
       <div className="workflow-list__grid">

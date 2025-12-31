@@ -103,6 +103,11 @@ const workflowSlice = createSlice({
         state.currentWorkflow.data.connections = action.payload;
       }
     },
+    updateCurrentWorkflowName: (state, action: PayloadAction<string>) => {
+      if (state.currentWorkflow.data) {
+        state.currentWorkflow.data.name = action.payload;
+      }
+    },
     // Selected node
     setSelectedNode: (state, action: PayloadAction<WorkflowNode | null>) => {
       state.selectedNode = action.payload;
@@ -122,8 +127,10 @@ export const {
   setCurrentWorkflowError,
   updateCurrentWorkflowNodes,
   updateCurrentWorkflowConnections,
+  updateCurrentWorkflowName,
   setSelectedNode,
 } = workflowSlice.actions;
 
 export default workflowSlice.reducer;
+
 

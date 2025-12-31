@@ -16,6 +16,8 @@ import {
   Panel,
   useReactFlow,
   ReactFlowProvider,
+  Handle,
+  Position,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
@@ -23,6 +25,7 @@ import {
   setSelectedNode,
   updateCurrentWorkflowNodes,
   updateCurrentWorkflowConnections,
+  updateCurrentWorkflowName,
   setCurrentWorkflow,
   WorkflowNode,
   WorkflowConnection,
@@ -44,12 +47,26 @@ const CustomNode: React.FC<{ data: { label: string; type: string }; type?: strin
   
   return (
     <div className="workflow-node">
+      {/* Input Handle (top) */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{ background: '#0284c7' }}
+      />
+      
       <div className="workflow-node__header">
         <span className={`workflow-node__type ${getTypeClass(nodeType)}`}>{nodeType}</span>
       </div>
       <div className="workflow-node__content">
         <div className="workflow-node__label">{data.label || 'Node'}</div>
       </div>
+      
+      {/* Output Handle (bottom) */}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{ background: '#0284c7' }}
+      />
     </div>
   );
 };
@@ -101,6 +118,25 @@ const WorkflowEditorContent: React.FC = () => {
   // Debounce timeout ref
   const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Workflow name editing state
+  const [isEditingName, setIsEditingName] = React.useState(false);
+  const [tempName, setTempName] = React.useState('');
+
+  useEffect(() => {
+    if (currentWorkflow.data?.name) {
+      setTempName(currentWorkflow.data.name);
+    }
+  }, [currentWorkflow.data?.name]);
+
+  const handleNameSave = () => {
+    if (tempName.trim()) {
+      dispatch(updateCurrentWorkflowName(tempName.trim()));
+    } else if (currentWorkflow.data?.name) {
+      setTempName(currentWorkflow.data.name);
+    }
+    setIsEditingName(false);
+  };
+
   // Update nodes and edges when workflow loads
   useEffect(() => {
     if (currentWorkflow.data && currentWorkflow.loading === 'succeeded') {
@@ -150,22 +186,29 @@ const WorkflowEditorContent: React.FC = () => {
   const handleNodesChange = useCallback(
     (changes: any) => {
       onNodesChange(changes);
-      // Debounce Redux updates for position changes to improve performance
-      if (changes.some((change: any) => change.type === 'position')) {
-        if (updateTimeoutRef.current) {
-          clearTimeout(updateTimeoutRef.current);
+      // Only update Redux when drag ends, not during dragging
+      if (Array.isArray(changes)) {
+        const hasPositionChange = changes.some((change: any) => change.type === 'position');
+        const hasDragEnd = changes.some((change: any) => change.type === 'drag' && change.dragging === false);
+        
+        if (hasPositionChange || hasDragEnd) {
+          if (updateTimeoutRef.current) {
+            clearTimeout(updateTimeoutRef.current);
+          }
+          // Update immediately when drag ends, debounce during drag
+          const delay = hasDragEnd ? 0 : 300;
+          updateTimeoutRef.current = setTimeout(() => {
+            const workflowNodes: WorkflowNode[] = nodesRef.current.map((node) => ({
+              id: node.id,
+              type: (node.type as string) || 'default',
+              position: node.position,
+              data: node.data as Record<string, unknown>,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            }));
+            dispatch(updateCurrentWorkflowNodes(workflowNodes));
+          }, delay);
         }
-        updateTimeoutRef.current = setTimeout(() => {
-          const workflowNodes: WorkflowNode[] = nodesRef.current.map((node) => ({
-            id: node.id,
-            type: (node.type as string) || 'default',
-            position: node.position,
-            data: node.data as Record<string, unknown>,
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          }));
-          dispatch(updateCurrentWorkflowNodes(workflowNodes));
-        }, 500);
       }
     },
     [onNodesChange, dispatch]
@@ -308,7 +351,35 @@ const WorkflowEditorContent: React.FC = () => {
     <div className="workflow-editor">
       <div className="workflow-editor__header">
         <div>
-          <h2>{currentWorkflow.data.name}</h2>
+          {isEditingName ? (
+            <input
+              type="text"
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              onBlur={handleNameSave}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleNameSave();
+                if (e.key === 'Escape') {
+                  setTempName(currentWorkflow.data?.name || '');
+                  setIsEditingName(false);
+                }
+              }}
+              autoFocus
+              className="workflow-editor__title-input"
+            />
+          ) : (
+            <h2
+              onClick={() => setIsEditingName(true)}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+              title="Click to edit"
+            >
+              {currentWorkflow.data.name}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '0.5rem', opacity: 0.5 }}>
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </h2>
+          )}
           {currentWorkflow.data.description && (
             <p className="workflow-editor__description">{currentWorkflow.data.description}</p>
           )}

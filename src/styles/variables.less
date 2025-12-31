@@ -1,47 +1,181 @@
 // Less Variables
 
+// CSS Variables Definition
+:root {
+  // Primary Colors
+  --primary-50: #f0f9ff;
+  --primary-100: #e0f2fe;
+  --primary-200: #bae6fd;
+  --primary-300: #7dd3fc;
+  --primary-400: #38bdf8;
+  --primary-500: #0ea5e9;
+  --primary-600: #0284c7;
+  --primary-700: #0369a1;
+  --primary-800: #075985;
+  --primary-900: #0c4a6e;
+
+  // Gray / Neutral Colors
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  // Semantic Colors
+  --red-50: #fef2f2;
+  --red-100: #fee2e2;
+  --red-200: #fecaca;
+  --red-300: #fca5a5;
+  --red-400: #f87171;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --red-700: #b91c1c;
+
+  --green-50: #f0fdf4;
+  --green-100: #dcfce7;
+  --green-200: #bbf7d0;
+  --green-600: #16a34a;
+  --green-800: #166534;
+
+  --yellow-50: #fefce8;
+  --yellow-100: #fef9c3;
+  --yellow-200: #fef08a;
+  --yellow-800: #854d0e;
+
+  // Backgrounds
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-modal: #ffffff;
+  --bg-sidebar: #ffffff;
+  --bg-sidebar-hover: #f9fafb;
+  --bg-sidebar-active: #f0f9ff;
+
+  // Text
+  --text-primary: #111827;
+  --text-secondary: #374151;
+  --text-tertiary: #6b7280;
+  --text-inverse: #ffffff;
+  --text-on-primary: #ffffff;
+
+  // Borders
+  --border-primary: #e5e7eb;
+  --border-secondary: #d1d5db;
+}
+
+[data-theme="dark"] {
+  // Primary Colors (Adusted for Dark Mode - slightly desaturated/lighter for visibility)
+  --primary-50: #082f49;
+  --primary-100: #0c4a6e;
+  --primary-200: #075985;
+  --primary-300: #0369a1;
+  --primary-400: #0284c7;
+  --primary-500: #0ea5e9;
+  --primary-600: #38bdf8; // Lighter in dark mode
+  --primary-700: #7dd3fc;
+  --primary-800: #bae6fd;
+  --primary-900: #e0f2fe;
+
+  // Gray / Neutral Colors (Inverted)
+  --gray-50: #111827;
+  --gray-100: #1f2937;
+  --gray-200: #374151;
+  --gray-300: #4b5563;
+  --gray-400: #6b7280;
+  --gray-500: #9ca3af;
+  --gray-600: #d1d5db;
+  --gray-700: #e5e7eb;
+  --gray-800: #f3f4f6;
+  --gray-900: #f9fafb;
+
+  // Semantic Colors (Adjusted)
+  --red-50: #450a0a;
+  --red-100: #7f1d1d;
+  --red-200: #991b1b;
+  --red-600: #f87171;
+  --red-700: #fca5a5;
+
+  --green-50: #052e16;
+  --green-100: #14532d;
+  --green-200: #166534;
+  --green-600: #4ade80;
+  --green-800: #86efac;
+
+  --yellow-50: #422006;
+  --yellow-100: #713f12;
+  --yellow-200: #854d0e;
+  --yellow-800: #fde047;
+
+  // Backgrounds
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
+  --bg-modal: #1f2937;
+  --bg-sidebar: #111827;
+  --bg-sidebar-hover: #1f2937;
+  --bg-sidebar-active: #0c4a6e;
+
+  // Text
+  --text-primary: #f9fafb;
+  --text-secondary: #e5e7eb;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #111827;
+  --text-on-primary: #111827;
+
+  // Borders
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+}
+
+// Less Variables (Mapped to CSS Variables)
+
 // Colors
-@primary-50: #f0f9ff;
-@primary-100: #e0f2fe;
-@primary-200: #bae6fd;
-@primary-300: #7dd3fc;
-@primary-400: #38bdf8;
-@primary-500: #0ea5e9;
-@primary-600: #0284c7;
-@primary-700: #0369a1;
-@primary-800: #075985;
-@primary-900: #0c4a6e;
+@primary-50: var(--primary-50);
+@primary-100: var(--primary-100);
+@primary-200: var(--primary-200);
+@primary-300: var(--primary-300);
+@primary-400: var(--primary-400);
+@primary-500: var(--primary-500);
+@primary-600: var(--primary-600);
+@primary-700: var(--primary-700);
+@primary-800: var(--primary-800);
+@primary-900: var(--primary-900);
 
-@gray-50: #f9fafb;
-@gray-100: #f3f4f6;
-@gray-200: #e5e7eb;
-@gray-300: #d1d5db;
-@gray-400: #9ca3af;
-@gray-500: #6b7280;
-@gray-600: #4b5563;
-@gray-700: #374151;
-@gray-800: #1f2937;
-@gray-900: #111827;
+@gray-50: var(--gray-50);
+@gray-100: var(--gray-100);
+@gray-200: var(--gray-200);
+@gray-300: var(--gray-300);
+@gray-400: var(--gray-400);
+@gray-500: var(--gray-500);
+@gray-600: var(--gray-600);
+@gray-700: var(--gray-700);
+@gray-800: var(--gray-800);
+@gray-900: var(--gray-900);
 
-@red-50: #fef2f2;
-@red-100: #fee2e2;
-@red-200: #fecaca;
-@red-300: #fca5a5;
-@red-400: #f87171;
-@red-500: #ef4444;
-@red-600: #dc2626;
-@red-700: #b91c1c;
+@red-50: var(--red-50);
+@red-100: var(--red-100);
+@red-200: var(--red-200);
+@red-300: var(--red-300);
+@red-400: var(--red-400);
+@red-500: var(--red-500);
+@red-600: var(--red-600);
+@red-700: var(--red-700);
 
-@green-50: #f0fdf4;
-@green-100: #dcfce7;
-@green-200: #bbf7d0;
-@green-600: #16a34a;
-@green-800: #166534;
+@green-50: var(--green-50);
+@green-100: var(--green-100);
+@green-200: var(--green-200);
+@green-600: var(--green-600);
+@green-800: var(--green-800);
 
-@yellow-50: #fefce8;
-@yellow-100: #fef9c3;
-@yellow-200: #fef08a;
-@yellow-800: #854d0e;
+@yellow-50: var(--yellow-50);
+@yellow-100: var(--yellow-100);
+@yellow-200: var(--yellow-200);
+@yellow-800: var(--yellow-800);
 
 // Spacing
 @spacing-xs: 0.25rem;
@@ -59,9 +193,12 @@
 
 // Shadows
 @shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-@shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-@shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-@shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+@shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  0 2px 4px -1px rgba(0, 0, 0, 0.06);
+@shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+  0 4px 6px -2px rgba(0, 0, 0, 0.05);
+@shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+  0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
 // Transitions
 @transition-fast: 150ms ease-in-out;
@@ -76,4 +213,3 @@
 @z-modal: 1050;
 @z-popover: 1060;
 @z-tooltip: 1070;
-

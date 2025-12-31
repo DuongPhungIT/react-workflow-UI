@@ -69,3 +69,4 @@ export const removeAuthToken = (): void => {
   removeStorageItem(STORAGE_KEYS.AUTH_TOKEN);
 };
 
+

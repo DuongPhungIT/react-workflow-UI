@@ -4,17 +4,17 @@
   border-radius: @radius-lg;
 
   &--default {
-    background-color: white;
-    border: 1px solid @gray-200;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-primary);
   }
 
   &--outlined {
     background-color: transparent;
-    border: 2px solid @gray-300;
+    border: 2px solid var(--border-secondary);
   }
 
   &--elevated {
-    background-color: white;
+    background-color: var(--bg-primary);
     border: none;
     box-shadow: @shadow-lg;
   }
@@ -35,4 +35,5 @@
     padding: 1.5rem;
   }
 }
+
 
