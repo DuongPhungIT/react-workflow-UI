@@ -96,7 +96,7 @@ const nodeTypes = {
 };
 
 // Helper to determine node color consistently
-const getNodeColor = (node: any) => {
+const getNodeColor = (node: Node | WorkflowNode) => {
   const label = node.data?.label;
   const type = node.type;
   
@@ -800,7 +800,7 @@ const WorkflowBuilderContent: React.FC = () => {
             ))}
           </div>
         </div>
-        
+
         {/* Node Configuration Sidebar */}
         {selectedNode && (
           <NodeConfigurationSidebar
